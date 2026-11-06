@@ -30,6 +30,10 @@ pub fn en() bool {
     return lang.load(.acquire) == .en;
 }
 
+pub fn ja() bool {
+    return lang.load(.acquire) == .ja;
+}
+
 /// O japonês tem a sua versão no ponto de uso (senão cai no inglês).
 fn pick(pt: []const u8, english: []const u8, japanese: ?[]const u8) []const u8 {
     return switch (lang.load(.acquire)) {
@@ -49,13 +53,14 @@ pub fn tr3(pt: []const u8, english: []const u8, japanese: []const u8) []const u8
 }
 
 pub fn trZ(pt: [:0]const u8, english: [:0]const u8) [:0]const u8 {
-    return if (en()) english else pt;
+    return if (en() or ja()) english else pt;
 }
 
 /// Sem espaço, corta o texto (nunca no meio de um caractere) em vez de sumir.
 pub fn fmt(buf: []u8, comptime pt: []const u8, comptime english: []const u8, args: anytype) []const u8 {
     var wr = std.Io.Writer.fixed(buf);
-    (if (en()) wr.print(english, args) else wr.print(pt, args)) catch {};
+    // Japonês sem versão própria usa o inglês (nunca o português).
+    (if (en() or ja()) wr.print(english, args) else wr.print(pt, args)) catch {};
     const out = wr.buffered();
     if (out.len < buf.len) return out;
     // Encheu: tira o último caractere se ele ficou pela metade.
@@ -69,11 +74,11 @@ pub fn fmt(buf: []u8, comptime pt: []const u8, comptime english: []const u8, arg
 }
 
 pub fn fmtZ(buf: []u8, comptime pt: []const u8, comptime english: []const u8, args: anytype) [:0]const u8 {
-    return (if (en()) std.fmt.bufPrintSentinel(buf, english, args, 0) else std.fmt.bufPrintSentinel(buf, pt, args, 0)) catch "";
+    return (if (en() or ja()) std.fmt.bufPrintSentinel(buf, english, args, 0) else std.fmt.bufPrintSentinel(buf, pt, args, 0)) catch "";
 }
 
 pub fn allocPrint(gpa: std.mem.Allocator, comptime pt: []const u8, comptime english: []const u8, args: anytype) ![]u8 {
-    return if (en()) std.fmt.allocPrint(gpa, english, args) else std.fmt.allocPrint(gpa, pt, args);
+    return if (en() or ja()) std.fmt.allocPrint(gpa, english, args) else std.fmt.allocPrint(gpa, pt, args);
 }
 
 /// Idioma do sistema: português se a primeira preferência for "pt", japonês
@@ -113,4 +118,15 @@ test "idioma padrão e troca" {
     try std.testing.expectEqualStrings("Entrar", tr3("Entrar", "Sign in", "ログイン"));
     set(.en);
     try std.testing.expectEqualStrings("Sign in", tr3("Entrar", "Sign in", "ログイン"));
+}
+
+// O japonês sem tradução cai no inglês também no fmt (não no português).
+test "fallback do japonês no fmt" {
+    const old = lang.load(.acquire);
+    defer lang.store(old, .release);
+    lang.store(.ja, .release);
+    var buf: [64]u8 = undefined;
+    try std.testing.expectEqualStrings("Message in #geral", fmt(&buf, "Conversar em #{s}", "Message in #{s}", .{"geral"}));
+    lang.store(.pt, .release);
+    try std.testing.expectEqualStrings("Conversar em #geral", fmt(&buf, "Conversar em #{s}", "Message in #{s}", .{"geral"}));
 }
