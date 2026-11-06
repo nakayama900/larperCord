@@ -791,6 +791,7 @@ pub fn nowMs() i64 {
 
 /// O texto no idioma atual: `en` quando existir e a interface estiver em inglês.
 fn pick(pt: []const u8, en: ?[]const u8) []const u8 {
+    if (i18n.current() == .ja) return en orelse pt;
     return if (i18n.en()) en orelse pt else pt;
 }
 
