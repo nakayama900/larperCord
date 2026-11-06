@@ -1688,6 +1688,52 @@ comptime {
     std.debug.assert(phrases.len == phrases_en.len);
 }
 
+/// As mesmas frases em japonês, na mesma ordem (só no fork, para os prints).
+const phrases_ja = [_][]const u8{
+    "おはようのみんな ☀️",
+    "今夜ゲームする人いる？",
+    "wwwwwwwwwww",
+    "vesktopの `ps aux` 見てよ: メッセージ送るだけで **1.28 GB** のRAM 💀",
+    "<@1000> これ見た？",
+    "zig 0.17に更新したらまた全部壊れた 🙃",
+    "新しいhyprlandめちゃくちゃ*滑らか*だな",
+    "**やっと**コンパイル通った",
+    "いい壁紙持ってる人いる？もう飽きた",
+    "これめっちゃlarperだな w",
+    "寝るわ、明日早い試験あるから 😴",
+    "でもアロケータは？誰が `free` すんのそれ？",
+    "スクショ貼って",
+    "うわ、良すぎる 😍",
+    "キャッシュが原因だと思う、`rm -rf ~/.cache/zig` してからもう一度コンパイルしてみ",
+    "1.28GBのRAMでチャットとか想像できる？200msで起動して30MBのDiscordクライアント、夢だよな",
+    "<@1005> kittyのテーマ何使ってる？",
+    "やばい",
+    "うん",
+    "知らんけど、まかせろ",
+    "言ってたゲームやったわ、ハマりすぎて朝4時まで気づかなくて今職場でゾンビ 🧟",
+    "**至急**: この部屋にUSB-Cのノート充電器持ってる人いる？",
+    "😂😂😂",
+    "何も起きないときは寝るのがコツ。アイドル時CPU 0%は別次元",
+    "おっけい",
+    "角の半径を8pxくらいにすればもっとモダンになると思う",
+    "lo-fi聴きながらコーディング、完璧なバイブ ☕",
+    "冷蔵庫の俺のエナジードリンク誰が取った 😤",
+    "明日callある？",
+    "壁紙からシステム全体の色を変えるスクリプト書いた、あとでrepo出す",
+    "<@1003> やる？",
+    "いや確かにそれっぽい",
+    "こっちで試してまた報告する",
+    "動いた!!! 🎉",
+    "シリーズの最後は ||犬がずっと悪者だった|| 😭",
+    "~~違う~~ いや、認めるわ",
+    "ドキュメントここ: https://ziglang.org/documentation/master",
+    "KDLのテーマでレイアウトごと変わる？それ*別次元*だな",
+};
+comptime {
+    std.debug.assert(phrases.len == phrases_ja.len);
+}
+
 fn phrase(i: usize) []const u8 {
+    if (i18n.current() == .ja) return phrases_ja[i];
     return if (i18n.en()) phrases_en[i] else phrases[i];
 }
