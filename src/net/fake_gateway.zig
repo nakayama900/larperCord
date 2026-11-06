@@ -816,7 +816,7 @@ pub const demo_emojis = [_]struct { id: Id, guild: usize, name: []const u8, anim
 /// A conversa com emoji, figurinha e reações personalizadas: #geral do primeiro servidor.
 pub const emoji_channel: Id = 500_005;
 
-const UserSeed = struct { id: Id, name: []const u8, role: u8, status: types.Status, activity: ?[]const u8 = null, activity_en: ?[]const u8 = null, avatar: bool = false, bot: bool = false, verified: bool = false };
+const UserSeed = struct { id: Id, name: []const u8, role: u8, status: types.Status, activity: ?[]const u8 = null, activity_en: ?[]const u8 = null, activity_ja: ?[]const u8 = null, avatar: bool = false, bot: bool = false, verified: bool = false };
 
 const users = [_]UserSeed{
     .{ .id = 1000, .name = "rsha", .role = 0, .status = .online, .activity = "Programando em Zig", .activity_en = "Coding in Zig", .avatar = true },
