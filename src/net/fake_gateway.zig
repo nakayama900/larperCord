@@ -833,7 +833,7 @@ const users = [_]UserSeed{
     .{ .id = 1011, .name = "joão vitor", .role = 1, .status = .offline },
     // Bots: um verificado (que também tem uma DM com a gente) e um comum.
     .{ .id = 1012, .name = "zigbot", .role = 4, .status = .online, .activity = "Usando /ajuda", .activity_en = "Using /help", .avatar = true, .bot = true, .verified = true },
-    .{ .id = 1013, .name = "radinho", .role = 6, .status = .online, .activity = "Tocando na call", .activity_en = "Playing in the call", .bot = true },
+    .{ .id = 1013, .name = "radinho", .role = 6, .status = .online, .activity = "Tocando na call", .activity_en = "Playing in the call", .activity_ja = "通話で再生中", .bot = true },
 };
 
 /// A DM com o bot verificado (canal 900_011 conversa com users[12]).
@@ -1034,7 +1034,7 @@ fn buildReady() !ev.Ready {
         .name = try alloc.dupe(u8, u.name),
         .role = u.role,
         .status = u.status,
-        .activity = if (u.activity) |a| try alloc.dupe(u8, pick(a, u.activity_en)) else null,
+        .activity = if (u.activity) |a| try alloc.dupe(u8, if (i18n.current() == .ja) u.activity_ja orelse u.activity_en orelse a else pick(a, u.activity_en)) else null,
         .avatar = if (u.avatar) try std.fmt.allocPrint(alloc, "demo:av:{d}", .{u.id}) else null,
         .bot = u.bot,
         .verified_bot = u.verified,
@@ -1466,7 +1466,7 @@ fn buildHistory(channel: Id, now_ms: i64) ![]types.Message {
             .provider = try alloc.dupe(u8, "ziglang.org"),
             .title = try alloc.dupe(u8, "Zig Programming Language"),
             .url = try alloc.dupe(u8, "https://ziglang.org"),
-            .description = try alloc.dupe(u8, pick("Zig é uma linguagem de uso geral para software **robusto**, **ótimo** e **reutilizável**.", "Zig is a general-purpose language for **robust**, **optimal** and **reusable** software.")),
+            .description = try alloc.dupe(u8, if (i18n.current() == .ja) "Zigは**堅牢**・**最適**・**再利用可能**なソフトウェアを作るための汎用プログラミング言語です。" else pick("Zig é uma linguagem de uso geral para software **robusto**, **ótimo** e **reutilizável**.", "Zig is a general-purpose language for **robust**, **optimal** and **reusable** software.")),
             .color = 0xF7A41D,
             .has_color = true,
             .thumb = try alloc.dupe(u8, "demo:icon:2"),
