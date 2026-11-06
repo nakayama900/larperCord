@@ -819,20 +819,20 @@ pub const emoji_channel: Id = 500_005;
 const UserSeed = struct { id: Id, name: []const u8, role: u8, status: types.Status, activity: ?[]const u8 = null, activity_en: ?[]const u8 = null, activity_ja: ?[]const u8 = null, avatar: bool = false, bot: bool = false, verified: bool = false };
 
 const users = [_]UserSeed{
-    .{ .id = 1000, .name = "rsha", .role = 0, .status = .online, .activity = "Programando em Zig", .activity_en = "Coding in Zig", .avatar = true },
-    .{ .id = 1001, .name = "ana.exe", .role = 1, .status = .online, .activity = "Ouvindo Spotify", .activity_en = "Listening to Spotify", .avatar = true },
-    .{ .id = 1002, .name = "brunão", .role = 2, .status = .dnd, .activity = "Jogando Hollow Knight", .activity_en = "Playing Hollow Knight", .avatar = true },
+    .{ .id = 1000, .name = "rsha", .role = 0, .status = .online, .activity = "Programando em Zig", .activity_en = "Coding in Zig", .activity_ja = "Zigでコーディング中", .avatar = true },
+    .{ .id = 1001, .name = "ana.exe", .role = 1, .status = .online, .activity = "Ouvindo Spotify", .activity_en = "Listening to Spotify", .activity_ja = "Spotifyを聴いている", .avatar = true },
+    .{ .id = 1002, .name = "brunão", .role = 2, .status = .dnd, .activity = "Jogando Hollow Knight", .activity_en = "Playing Hollow Knight", .activity_ja = "Hollow Knightをプレイ中", .avatar = true },
     .{ .id = 1003, .name = "kaique", .role = 3, .status = .online },
-    .{ .id = 1004, .name = "lulu", .role = 4, .status = .idle, .activity = "Assistindo YouTube", .activity_en = "Watching YouTube", .avatar = true },
-    .{ .id = 1005, .name = "duda", .role = 5, .status = .online, .activity = "No Hyprland 🌸", .activity_en = "On Hyprland 🌸", .avatar = true },
+    .{ .id = 1004, .name = "lulu", .role = 4, .status = .idle, .activity = "Assistindo YouTube", .activity_en = "Watching YouTube", .activity_ja = "YouTubeを見ている", .avatar = true },
+    .{ .id = 1005, .name = "duda", .role = 5, .status = .online, .activity = "No Hyprland 🌸", .activity_en = "On Hyprland 🌸", .activity_ja = "Hyprland 🌸", .avatar = true },
     .{ .id = 1006, .name = "thiaguinho", .role = 6, .status = .idle },
-    .{ .id = 1007, .name = "mari", .role = 7, .status = .online, .activity = "Jogando Minecraft", .activity_en = "Playing Minecraft", .avatar = true },
+    .{ .id = 1007, .name = "mari", .role = 7, .status = .online, .activity = "Jogando Minecraft", .activity_en = "Playing Minecraft", .activity_ja = "Minecraftをプレイ中", .avatar = true },
     .{ .id = 1008, .name = "gustavo", .role = 2, .status = .offline },
     .{ .id = 1009, .name = "nanda", .role = 3, .status = .offline, .avatar = true },
     .{ .id = 1010, .name = "pedro", .role = 5, .status = .offline },
     .{ .id = 1011, .name = "joão vitor", .role = 1, .status = .offline },
     // Bots: um verificado (que também tem uma DM com a gente) e um comum.
-    .{ .id = 1012, .name = "zigbot", .role = 4, .status = .online, .activity = "Usando /ajuda", .activity_en = "Using /help", .avatar = true, .bot = true, .verified = true },
+    .{ .id = 1012, .name = "zigbot", .role = 4, .status = .online, .activity = "Usando /ajuda", .activity_en = "Using /help", .activity_ja = "/help を使用中", .avatar = true, .bot = true, .verified = true },
     .{ .id = 1013, .name = "radinho", .role = 6, .status = .online, .activity = "Tocando na call", .activity_en = "Playing in the call", .activity_ja = "通話で再生中", .bot = true },
 };
 
@@ -1571,15 +1571,15 @@ fn buildHistory(channel: Id, now_ms: i64) ![]types.Message {
 /// figurinhas. Passa pelo mesmo caminho do gateway de verdade.
 fn demoEmojiMessages(msgs: []types.Message) !void {
     const n = msgs.len;
-    const texts = [_]struct { back: usize, raw: []const u8, raw_en: []const u8 }{
-        .{ .back = 2, .raw = "ficou muito bom <:larper:900101> o tema novo <:pepe_ok:900102>", .raw_en = "the new theme looks so good <:larper:900101> <:pepe_ok:900102>" },
+    const texts = [_]struct { back: usize, raw: []const u8, raw_en: []const u8, raw_ja: ?[]const u8 = null }{
+        .{ .back = 2, .raw = "ficou muito bom <:larper:900101> o tema novo <:pepe_ok:900102>", .raw_en = "the new theme looks so good <:larper:900101> <:pepe_ok:900102>", .raw_ja = "新しいテーマめっちゃいい <:larper:900101> <:pepe_ok:900102>" },
         .{ .back = 4, .raw = "<:ziguana:900103> <a:festa:900104>", .raw_en = "<:ziguana:900103> <a:festa:900104>" },
         .{ .back = 6, .raw = "🔥🔥😂", .raw_en = "🔥🔥😂" },
     };
     for (texts) |t| {
         const m = &msgs[n - t.back];
         alloc.free(m.content);
-        const raw = pick(t.raw, t.raw_en);
+        const raw = if (i18n.current() == .ja) t.raw_ja orelse t.raw_en else pick(t.raw, t.raw_en);
         m.content = try jsonx.simplifyContent(alloc, raw);
         m.raw = if (m.content.len != raw.len) try alloc.dupe(u8, raw) else "";
         m.reply_to = 0;
