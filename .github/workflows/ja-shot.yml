@@ -1,0 +1,26 @@
+name: ja-shot
+on: [push]
+jobs:
+  shot:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - run: pacman -Syu --noconfirm --needed git pkgconf sdl3 curl zlib freetype2 fontconfig libwebp opus noto-fonts noto-fonts-emoji noto-fonts-cjk
+      - uses: actions/checkout@v4
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.17.0
+      - run: zig build -Doptimize=ReleaseFast
+      - name: Prints em japonês
+        env:
+          SDL_VIDEO_DRIVER: offscreen
+        run: |
+          mkdir -p shots
+          ./zig-out/bin/larpercord --lang ja --theme classico --mode escuro --shot shots/ja-app.png
+          ./zig-out/bin/larpercord --lang ja --settings --shot shots/ja-settings.png
+          ./zig-out/bin/larpercord --lang ja --shot shots/ja-login.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ja-shots
+          path: shots/
